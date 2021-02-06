@@ -6,8 +6,8 @@ public class MyThread {
     static int quantidadeDeNucleos = 0;
     static int quantidadeDeExecucoesNucleo = 0;
     int meuNumero;
-    Find f = null;
-    Nucleo n = new Nucleo();
+    Find find = null;
+    Nucleo nucleo = new Nucleo();
     boolean iniciado = false;
     boolean processar = false;
 
@@ -24,7 +24,7 @@ public class MyThread {
                 if(processar){
                     /*funções do núcleo*/
 
-                    Bots.algoritimoExecutavel.apply(f);
+                    Bots.algoritimoExecutavel.apply(find);
                     alterarVariaveis();
                     processar = false;
 
@@ -34,9 +34,9 @@ public class MyThread {
         }
     }
     public synchronized void setNucleo(){
-        this.f = null;
-        this.f = new Find();
-        this.f.numeroThread = meuNumero;
+        this.find = null;
+        this.find = new Find();
+        this.find.numeroThread = meuNumero;
     }
     public synchronized void ligarNucleo(){
         setNucleo();
@@ -44,11 +44,11 @@ public class MyThread {
             this.processar = true;
         }else{
             this.processar = true;
-            this.n.start();
+            this.nucleo.start();
         }
     }
     public synchronized void encerrarNucleo(){
-        this.n.stop();
+        this.nucleo.stop();
     }
     public synchronized static void alterarVariaveis(){
         try{sleep(1);}catch (Exception e){}

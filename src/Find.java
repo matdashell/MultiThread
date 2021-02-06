@@ -18,13 +18,14 @@ public class Find {
     Robot r = null;
     int meuNumero;
     int numeroThread;
-    static int numeroDeBots = 0;
+    static int contadorBot = 0;
     static WebElement html = null;
 
-    //Configuração do selenium usndo o navegador Chrome
+
+    //informações sobre quantiade de execuções
     public Find() {
-        meuNumero = Find.numeroDeBots;
-        Find.numeroDeBots++;
+        meuNumero = Find.contadorBot;
+        Find.contadorBot++;
     }
 
 
@@ -38,56 +39,20 @@ public class Find {
     }
 
 
-    //retorno um unico elemento com base na busca
-    //em caso de erro retorna null e adiciona o erro ao log com o código
+    //retorna o primeiro webElement com base na busca
     public WebElement one(String busca){
       return auxReturnWebDriver(driver, busca).get(0);
     }
 
 
-    //retorna um unico elemento com base na busca no elemento no input
-    //em caso de erro retorna null e adiciona o erro ao log com o código
-    //sobrecaga
+    //retorna o primeiro webElement com base na busca dentro do webElement
     public static WebElement one(WebElement webElement ,String busca){
         return auxReturnWebElement(webElement, busca).get(0);
 
     }
 
 
-    //retorna um unico elemento com base na busca no driver no input
-    //em caso de erro retorna null e adiciona o erro ao log com o código
-    //sobrecaga
-    public WebElement one(WebDriver webDriver ,String busca){
-        return auxReturnWebDriver(webDriver, busca).get(0);
-    }
-
-
-    //retorna uma lista de elemento com base na busca
-    //em caso de erro retorna null e adiciona o erro ao log com o código
-    public List<WebElement> more(String busca){
-        return auxReturnWebDriver(driver, busca);
-    }
-
-
-    //retorna uma lista de elementos com base na busca do elemento no input
-    //em caso de erro retorna null e adiciona o erro ao log com o código
-    //sobrecaga
-    public static List<WebElement> more(WebElement webElement ,String busca){
-        return auxReturnWebElement(webElement, busca);
-    }
-
-
-    //retorna uma lista de elementos com base na busca no driver no input
-    //em caso de erro retorna null e adiciona o erro ao log com o código
-    //sobrecaga
-    public List<WebElement> more(WebDriver webDriver ,String busca){
-        return auxReturnWebDriver(webDriver, busca);
-    }
-
-
-    //retorna o primeiro elemento com base na busca da lista no input
-    //em caso de erro retorna null e adiciona o erro ao log com o código
-    //sobrecaga
+    //retorna o primeiro webElement com base na busca dentro da lista de webElements
     public static WebElement one(List<WebElement> listaWE ,String busca){
         for(WebElement dados : listaWE){
             return auxReturnWebElement(dados, busca).get(0);
@@ -96,9 +61,19 @@ public class Find {
     }
 
 
-    //retorna uma lista de elementos com base na busca de todos os elemento da lista no input
-    //em caso de erro retorna null e adiciona o erro ao log com o código
-    //sobrecaga
+    //retornar uma lista de webElement com base na busca
+    public List<WebElement> more(String busca){
+        return auxReturnWebDriver(driver, busca);
+    }
+
+
+    //retorna uma lista de webElement com base na busca dentro do webElement
+    public static List<WebElement> more(WebElement webElement ,String busca){
+        return auxReturnWebElement(webElement, busca);
+    }
+
+
+    //retorna todos os webElements dentro de uma lista de webElements
     public static List<WebElement> more(List<WebElement> listaWE ,String busca){
         List<WebElement> retorno = new ArrayList<>();
         List<WebElement> temp = new ArrayList<>();
@@ -106,14 +81,10 @@ public class Find {
         for(WebElement dados : listaWE){
             try {
                 temp = (auxReturnWebElement(dados, busca));
-
-            }catch (Exception e){
-                continue;
+            }catch (Exception ignore){
             }
-
             for(WebElement elementos : temp) {
                 retorno.add(elementos);
-
             }
         }
         return retorno;
@@ -126,11 +97,12 @@ public class Find {
         boolean esperar = true;
         try{
             while(esperar) {
-                time(500);
                 esperar = false;
-                if(one(busca) != null){
+                try{
+                    one(busca);
                     esperar = true;
-                }
+                    time(500);
+                }catch (Exception e) {  }
             }
         }catch (Exception ignored){ }
         driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
@@ -138,17 +110,17 @@ public class Find {
 
 
     ////tem função de aguardar enquanto o elemento procurado está ativo na tela
-    //sobrecarga
     public void waitWhileEnable(WebElement webElement ,String busca){
         driver.manage().timeouts().implicitlyWait(200,TimeUnit.MILLISECONDS);
         boolean esperar = true;
         try{
             while(esperar) {
-                time(500);
                 esperar = false;
-                if(one(webElement ,busca) != null){
+                try{
+                    one(webElement ,busca);
                     esperar = true;
-                }
+                    time(500);
+                }catch (Exception e) {  }
             }
         }catch (Exception ignored){ }
         driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
@@ -161,10 +133,12 @@ public class Find {
         boolean esperar = true;
         try{
             while(esperar) {
-                time(500);
                 esperar = false;
-                if(one(busca) == null){
+                try{
+                    one(busca);
+                }catch (Exception e) {
                     esperar = true;
+                    time(500);
                 }
             }
         }catch (Exception ignored){ }
@@ -173,16 +147,17 @@ public class Find {
 
 
     //tem função de aguardar enquanto o elemento procurado não está ativo na tela
-    //sobrecarga
     public void waitWhileDisable(WebElement webElement ,String busca){
         driver.manage().timeouts().implicitlyWait(200,TimeUnit.MILLISECONDS);
         boolean esperar = true;
         try{
             while(esperar) {
-                time(500);
                 esperar = false;
-                if(one(webElement ,busca) == null){
+                try{
+                    one(webElement ,busca);
+                }catch (Exception e) {
                     esperar = true;
+                    time(500);
                 }
             }
         }catch (Exception ignored){ }
@@ -193,61 +168,70 @@ public class Find {
     //retorna um boolean com base da atividade do elemento procurado
     public boolean visible(String busca){
         driver.manage().timeouts().implicitlyWait(200,TimeUnit.MILLISECONDS);
-        time(1000);
+        boolean retorno;
 
-        if(one(busca) == null){
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return false;
+        try{
+            one(busca);
+            retorno = true;
+        }catch (Exception e){
+            retorno = false;
         }
-        else{
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return true;
-        }
+
+        driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
+        return retorno;
+
 
     }
 
     //retorna um boolean com base da atividade do elemento procurado
     public boolean visible(String busca, int tempoMLS){
         driver.manage().timeouts().implicitlyWait(tempoMLS,TimeUnit.MILLISECONDS);
+        boolean retorno;
 
-        if(one(busca) == null){
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return false;
+        try{
+            one(busca);
+            retorno = true;
+        }catch (Exception e){
+            retorno = false;
         }
-        else{
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return true;
-        }
+
+        driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
+        return retorno;
 
     }
 
     //retorna um boolean com base da atividade do elemento procurado
     public boolean visible(WebElement webElement ,String busca){
         driver.manage().timeouts().implicitlyWait(200,TimeUnit.MILLISECONDS);
-        time(1000);
+        boolean retorno;
 
-        if(one(webElement ,busca) == null){
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return false;
+        try{
+            one(webElement ,busca);
+            retorno = true;
+        }catch (Exception e){
+            retorno = false;
         }
-        else{
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return true;
-        }
+
+        driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
+        return retorno;
+
     }
 
     //retorna um boolean com base da atividade do elemento procurado
     public boolean visible(WebElement webElement ,String busca, int tempoMLS){
         driver.manage().timeouts().implicitlyWait(tempoMLS,TimeUnit.MILLISECONDS);
+        boolean retorno;
 
-        if(one(webElement ,busca) == null){
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return false;
+        try{
+            one(webElement ,busca);
+            retorno = true;
+        }catch (Exception e){
+            retorno = false;
         }
-        else{
-            driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
-            return true;
-        }
+
+        driver.manage().timeouts().implicitlyWait(Bots.tempoDeEsperaDriver,TimeUnit.SECONDS);
+        return retorno;
+
     }
 
     //navega até uma página https
@@ -262,7 +246,7 @@ public class Find {
     }
 
 
-    //encerrar a execução e mostrar os erros de execução
+    //encerrar a execução
     public synchronized void exit(){
         driver.quit();
     }
@@ -276,13 +260,11 @@ public class Find {
 
     //recarregar a pagina
     public void reload(){
-        time(1000);
-        one("css html").sendKeys(Keys.F5);
-        time((long) Bots.tempoDeEsperaDriver/2);
+        page(driver().getCurrentUrl());
     }
 
 
-    //obter o numero do bot (em caso de uso)
+    //obter o numero Find (em caso de uso)
     public int getNumero(){
         return meuNumero;
     }
